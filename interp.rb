@@ -1,5 +1,4 @@
 require "minruby"
-
 def fizzbuzz(n)
   if n % 3 == 0
     if n % 5 == 0
@@ -78,7 +77,8 @@ def evaluate(exp, lenv, function_definitions)
       when "Integer"
         Integer(evaluate(exp[2], lenv, function_definitions))
       when "fizzbuzz"
-        fizzbuzz(evaluate(exp[2], lenv, function_definitions)) when "require"
+        fizzbuzz(evaluate(exp[2], lenv, function_definitions))
+      when "require"
         require(evaluate(exp[2], lenv, function_definitions))
       when "minruby_parse"
         minruby_parse(evaluate(exp[2], lenv, function_definitions))
@@ -148,4 +148,13 @@ lenv = {}
 
 # `minruby_load()` == `File.read(ARGV.shift)`
 # `minruby_parse(str)` parses a program text given, and returns its AST
-evaluate(minruby_parse(minruby_load()), lenv, function_definitions)
+load './optimizer.rb'
+
+source = minruby_load()
+ast = minruby_parse(source)
+puts "Original AST"
+pp ast
+new_ast = optimize(ast)
+puts "Optimized AST"
+pp new_ast
+evaluate(ast, lenv, function_definitions)
